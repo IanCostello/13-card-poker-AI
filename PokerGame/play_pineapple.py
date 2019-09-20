@@ -5,10 +5,7 @@ def main():
     game = PokerGame.PokerGame()
 
     while True:
-            
         getDeal(game)
-        getDeal(game)
-        print_game_state(game)
 
 def getDeal(game):
     hand = game.deal()
@@ -32,9 +29,13 @@ def getDeal(game):
 
     game.playIntoHand(first_card, first_card_location - 1, second_card, second_card_location - 1, third_card, third_card_location - 1)
 
+
+    print
+
 def print_game_state(game, hand):
     os.system('cls' if os.name == 'nt' else 'clear')
     game.print_board()
 
 
 main()
+

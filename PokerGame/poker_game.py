@@ -1,5 +1,7 @@
 import random, math
 from termcolor import colored, cprint
+from enum import Enum
+
 #DEFINE
 NUM_CARD_VALUES = 13
 RANDOM_SEED = None #None For No Seed
@@ -16,7 +18,7 @@ class PokerGame:
         random.seed(RANDOM_SEED)
 
         # Currently on board -- all 0s if empty
-        self.player_board = []
+        self.player_board = [] 
 
         # Append Board Sizes
         for i in range(3):
@@ -25,7 +27,7 @@ class PokerGame:
         # Init deck
         self.deck = []
         for i in range(52):
-            self.deck.append(self.Card(i))
+            self.deck.append(Card(i))
         random.shuffle(self.deck)
 
     # hand num corresponds to bottom, mid, or top
@@ -49,14 +51,18 @@ class PokerGame:
     # def score_board(board):
     
     def print_board(self):
-        print_hand = self.player_board
+        ''' Prints the current player board state '''
 
-        print(f"TOP    ROW {print_hand[2]}")
-        print(f"MIDDLE ROW {print_hand[1]}")
-        print(f"BOTTOM ROW {print_hand[0]}")
+        print(f"TOP    ROW {self.player_board[2]}")
+        print(f"MIDDLE ROW {self.player_board[1]}")
+        print(f"BOTTOM ROW {self.player_board[0]}")
 
-    def score_hand(hand):
-        hand = sorted(hand)
+    def score_hand(self):
+        ''' Returns the total score of entire player hand
+
+        [UNIMPLEMENTED]
+        '''
+        scorer = HandScorer(self.player_board[first_hand_num])
 
         # Check for straight
         has_straight = True
@@ -134,3 +140,6 @@ class PokerGame:
 
         def hasStraightFlush(self):
             return self.hasStraight() + self.hasFlush()
+    def set_player_deck(self, deck):
+        ''' Sets the deck to a given hand for testing '''
+        self.deck = deck;
