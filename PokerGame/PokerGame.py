@@ -1,5 +1,5 @@
 import random, math
-
+from termcolor import colored, cprint
 #DEFINE
 NUM_CARD_VALUES = 13
 RANDOM_SEED = None #None For No Seed
@@ -28,9 +28,11 @@ class PokerGame:
             self.deck.append(self.Card(i))
         random.shuffle(self.deck)
 
-    def playIntoHand(self, first_card, first_hand_num, second_card, second_hand_num):
+    # hand num corresponds to bottom, mid, or top
+    def playIntoHand(self, first_card, first_hand_num, second_card, second_hand_num, third_card, third_hand_num):
         self.player_board[first_hand_num].append(first_card)
         self.player_board[second_hand_num].append(second_card)
+        self.player_board[third_hand_num].append(third_card)
 
     def deal(self):
         ''' Deals cards to the player '''
@@ -62,13 +64,15 @@ class PokerGame:
     class Card:
         suit_names = ["Clubs", "Spades", "Hearts", "Diamonds"]
         card_names = ["Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Jack", "Queen", "King", "Ace"]
+        short_card_names = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"]
+        short_suit_names = ["C", "S", "H", "D"]
 
         def __init__(self, value):
             self.value = value - NUM_CARD_VALUES*math.floor(value / NUM_CARD_VALUES)
             self.suit = math.floor(value / NUM_CARD_VALUES)
 
         def __str__(self):
-            return f"{self.card_names[self.value]} of {self.suit_names[self.suit]}"
+            return f"{self.short_card_names[self.value]}{self.short_suit_names[self.suit]}"
 
         def __repr__(self):
             return self.__str__()
@@ -86,14 +90,14 @@ class PokerGame:
 
         def hasPair(self):
             for i in range(NUM_CARD_VALUES):
-                if (value_range[i] == 2):
+                if (self.value_range[i] == 2):
                     return True
             return False
 
         def hasTwoPair(self):
             numDoubles = 0
             for i in range(NUM_CARD_VALUES):
-                if (value_range[i] == 2):
+                if (self.value_range[i] == 2):
                     return numDoubles
             return numDoubles == 2
 
@@ -114,13 +118,13 @@ class PokerGame:
             return False
 
         def hasFlush(self):
-            for i in range(1, len(hand)):
-                if hand[i].suit != hand[i-1].suit:
+            for i in range(1, len(self.hand)):
+                if self.hand[i].suit != self.hand[i-1].suit:
                     return False
             return True
 
         def hasFullHouse(self):
-            return hasPair() and hasTriple() 
+            return self.hasPair() and self.hasTriple()
 
         def hasFourOfKind(self):
             for i in range(NUM_CARD_VALUES):
@@ -129,4 +133,4 @@ class PokerGame:
             return False
 
         def hasStraightFlush(self):
-            return hasStraight() + hasFlush()
+            return self.hasStraight() + self.hasFlush()

@@ -1,3 +1,6 @@
+#DEFINE
+NUM_CARD_VALUES = 13
+
 class HandScorer:
     def __init__(self, hand, row_num):
         self.hand = hand
@@ -22,19 +25,19 @@ class HandScorer:
         else:
             # Score
             score_multiplier = self.row_num + 2 
-            if hasStraightFlush():
+            if self.hasStraightFlush():
                 return 0, 25 * 2 
 
     def hasPair(self):
         for i in range(NUM_CARD_VALUES):
-            if (value_range[i] == 2):
+            if (self.value_range[i] == 2):
                 return True
         return False
 
     def hasTwoPair(self):
         numDoubles = 0
         for i in range(NUM_CARD_VALUES):
-            if (value_range[i] == 2):
+            if (self.value_range[i] == 2):
                 return numDoubles
         return numDoubles == 2
 
@@ -55,13 +58,13 @@ class HandScorer:
         return False
 
     def hasFlush(self):
-        for i in range(1, len(hand)):
-            if hand[i].suit != hand[i-1].suit:
+        for i in range(1, len(self.hand)):
+            if self.hand[i].suit != self.hand[i-1].suit:
                 return False
         return True
 
     def hasFullHouse(self):
-        return hasPair() and hasTriple() 
+        return self.hasPair() and self.hasTriple()
 
     def hasFourOfKind(self):
         for i in range(NUM_CARD_VALUES):
@@ -70,4 +73,4 @@ class HandScorer:
         return False
 
     def hasStraightFlush(self):
-        return hasStraight() + hasFlush()
+        return self.hasStraight() + self.hasFlush()
