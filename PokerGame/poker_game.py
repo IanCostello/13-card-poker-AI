@@ -31,10 +31,9 @@ class PokerGame:
         random.shuffle(self.deck)
 
     # hand num corresponds to bottom, mid, or top
-    def playIntoHand(self, first_card, first_hand_num, second_card, second_hand_num, third_card, third_hand_num):
+    def playIntoHand(self, first_card, first_hand_num, second_card, second_hand_num):
         self.player_board[first_hand_num].append(first_card)
         self.player_board[second_hand_num].append(second_card)
-        self.player_board[third_hand_num].append(third_card)
 
     def deal(self):
         ''' Deals cards to the player '''
@@ -52,94 +51,135 @@ class PokerGame:
     
     def print_board(self):
         ''' Prints the current player board state '''
+        print(f"TOP    ROW {self.player_board[2]}   Power Rank {HandScorer.score_hand(self.player_board[2])}")
+        print(f"MIDDLE ROW {self.player_board[1]}   Power Rank {HandScorer.score_hand(self.player_board[1])}")
+        print(f"BOTTOM ROW {self.player_board[0]}   Power Rank {HandScorer.score_hand(self.player_board[0])}")
 
-        print(f"TOP    ROW {self.player_board[2]}")
-        print(f"MIDDLE ROW {self.player_board[1]}")
-        print(f"BOTTOM ROW {self.player_board[0]}")
+class Card:
+    suit_names = ["Clubs", "Spades", "Hearts", "Diamonds"]
+    card_names = ["Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Jack", "Queen", "King", "Ace"]
+    short_card_names = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"]
+    short_suit_names = ["C", "S", "H", "D"]
 
-    def score_hand(self):
-        ''' Returns the total score of entire player hand
+    def __init__(self, value):
+        self.suit = math.floor(value / NUM_CARD_VALUES)
+        self.value = value - NUM_CARD_VALUES*math.floor(value / NUM_CARD_VALUES)
 
-        [UNIMPLEMENTED]
+    def __init__(self, suit, value):
+        self.suit = suit
+        self.value = value
+
+    def __str__(self):
+        return f"{self.short_card_names[self.value]}{self.short_suit_names[self.suit]}"
+
+    def __repr__(self):
+        return self.__str__()
+
+class Rankings(Enum):
+        HIGH_CARD = 0
+        PAIR = 1
+        THREE_CARD = 2
+        STRAIGHT = 3
+        FLUSH = 4
+        FULL_HOUSE = 5
+        FOUR_CARD = 6
+        STRAIGHT_FLUSH = 7
+
+class HandScorer:    
+    def score_hand(hand):
+        '''Scores a single poker hand (3 or 5 cards)
+        Builds a range from best hand to worst, with type of pair
+
+        Returns a list in the format (CARD_RANKING, HIGH VALUE CARD)
+        [(1, 12), (1, 0), (0, 4)] -> represents pair of aces, pair of twos, and a highcard 6
+        [(2, 4), (1, 2)] -> represents triple threes, pair of fours (E.G full house)
+
         '''
-        scorer = HandScorer(self.player_board[first_hand_num])
 
-        # Check for straight
-        has_straight = True
+        # Build map of num_cards for each value
+        value_range = [0] * NUM_CARD_VALUES
 
-    class Card:
-        suit_names = ["Clubs", "Spades", "Hearts", "Diamonds"]
-        card_names = ["Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Jack", "Queen", "King", "Ace"]
-        short_card_names = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"]
-        short_suit_names = ["C", "S", "H", "D"]
+        for card in hand:
+            value_range[card.value] += 1
 
-        def __init__(self, value):
-            self.value = value - NUM_CARD_VALUES*math.floor(value / NUM_CARD_VALUES)
-            self.suit = math.floor(value / NUM_CARD_VALUES)
+        
+        # Build power range
+        power_range = []
+        power_range = power_range + HandScorer.four_of_kind_rankings(value_range)
 
-        def __str__(self):
-            return f"{self.short_card_names[self.value]}{self.short_suit_names[self.suit]}"
+        straight_flush_rankings = []
+        straight_flush_rankings = straight_flush_rankings + HandScorer.straight_rankings(value_range)
+        straight_flush_rankings = straight_flush_rankings + HandScorer.flush_rankings(hand)
 
-        def __repr__(self):
-            return self.__str__()
+        # Special case if straight flush
+        if len(straight_flush_rankings) > 5:
+            for i in range(5):
+                power_range.append((Rankings.STRAIGHT_FLUSH.value, straight_flush_rankings[i][1]))
+        else:
+            power_range = power_range + straight_flush_rankings
 
-    class HandScorer:
-        def __init__(self, hand):
-            self.hand = hand
-            self.value_range = [0] * NUM_CARD_VALUES
+        if power_range == []:
+            power_range = power_range + HandScorer.three_of_kind_rankings(value_range)
+            power_range = power_range + HandScorer.pair_rankings(value_range)
+            power_range = power_range + HandScorer.high_card_rankings(value_range)
 
-            for card in hand:
-                if card.value not in self.value_range:
-                    self.value_range[card.value] = 0
+        return sorted(power_range)[::-1] 
 
-                self.value_range[card.value] = self.value_range[card.value] + 1
+    def high_card_rankings(value_range):
+        power_range = []
 
-        def hasPair(self):
-            for i in range(NUM_CARD_VALUES):
-                if (self.value_range[i] == 2):
-                    return True
-            return False
+        for card_num in range(NUM_CARD_VALUES):
+            if (value_range[card_num] == 1):
+                value_range[card_num] = 0
+                power_range.append((Rankings.HIGH_CARD.value, card_num))
 
-        def hasTwoPair(self):
-            numDoubles = 0
-            for i in range(NUM_CARD_VALUES):
-                if (self.value_range[i] == 2):
-                    return numDoubles
-            return numDoubles == 2
+        return power_range
 
-        def hasThreeOfKind(self):
-            for i in range(NUM_CARD_VALUES):
-                if (self.value_range[i] == 3):
-                    return True
-            return False
+    def pair_rankings(value_range):
+        power_range = []
 
-        def hasStraight(self):
-            for i in range(NUM_CARD_VALUES-5):
-                for j in range(5):
-                    if (self.value_range[i+j] != 1):
-                        break
-                    elif j == 5:
-                        return True
+        for card_num in range(NUM_CARD_VALUES):
+            if (value_range[card_num] == 2):
+                value_range[card_num] = 0
+                power_range.append((Rankings.PAIR.value, card_num))
 
-            return False
+        return power_range
 
-        def hasFlush(self):
-            for i in range(1, len(self.hand)):
-                if self.hand[i].suit != self.hand[i-1].suit:
-                    return False
-            return True
+    def three_of_kind_rankings(value_range):
+        for card_num in range(NUM_CARD_VALUES):
+            if (value_range[card_num] == 3):
+                value_range[card_num] = 0
+                return [(Rankings.THREE_CARD.value, card_num)]
 
-        def hasFullHouse(self):
-            return self.hasPair() and self.hasTriple()
+        return []
 
-        def hasFourOfKind(self):
-            for i in range(NUM_CARD_VALUES):
-                if (self.value_range[i] == 4):
-                    return True
-            return False
+    def straight_rankings(value_range):
+        for card_num in range(NUM_CARD_VALUES-5):
+            for j in range(5):
+                if (value_range[card_num+j] != 1):
+                    break
+                elif j == 4:
+                    return [(Rankings.STRAIGHT.value, card_num + 4)]
 
-        def hasStraightFlush(self):
-            return self.hasStraight() + self.hasFlush()
-    def set_player_deck(self, deck):
-        ''' Sets the deck to a given hand for testing '''
-        self.deck = deck;
+        return []
+
+    def flush_rankings(hand):
+        if len(hand) < 5:
+            return []
+
+        power_range = []
+        power_range.append((Rankings.FLUSH.value, hand[0].value))
+        for i in range(1, len(hand)):
+            if hand[i].suit != hand[i-1].suit:
+                return []
+            else:
+                power_range.append((Rankings.FLUSH.value, hand[i].value))
+
+        return power_range
+
+    def four_of_kind_rankings(value_range):
+        for card_num in range(NUM_CARD_VALUES):
+            if (value_range[card_num] == 4):
+                return [(Rankings.FOUR_CARD.value, card_num)]
+
+        return []

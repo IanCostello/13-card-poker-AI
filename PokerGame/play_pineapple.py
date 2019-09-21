@@ -1,8 +1,8 @@
-import PokerGame
+import poker_game
 import os
 
 def main():
-    game = PokerGame.PokerGame()
+    game = poker_game.PokerGame()
 
     while True:
         getDeal(game)
@@ -23,11 +23,7 @@ def getDeal(game):
     second_card_location = int(input("Row To Play (Bottom = 1, Middle = 2, Top = 3): "))
     second_card = hand.pop(second_card_num - 1)
 
-    print(f"Cards To Play -- {hand}")
-    third_card_location = int(input("Row To Play (Bottom = 1, Middle = 2, Top = 3): "))
-    third_card = hand.pop(0)
-
-    game.playIntoHand(first_card, first_card_location - 1, second_card, second_card_location - 1, third_card, third_card_location - 1)
+    game.playIntoHand(first_card, first_card_location - 1, second_card, second_card_location - 1)
 
 
     print
