@@ -165,7 +165,6 @@ class HandScorer:
         for card in hand:
             value_range[card.value] += 1
 
-        
         # Build power range
         power_range = []
         power_range = power_range + HandScorer.four_of_kind_rankings(value_range)
@@ -189,10 +188,10 @@ class HandScorer:
             power_range.append((Rankings.PAIR.value, pair_rankings[0][1]))
 
         if power_range == []:
-            power_range = power_range + HandScorer.three_of_kind_rankings(value_range)
-            power_range = power_range + HandScorer.pair_rankings(value_range)
+            # reuse pair/three_of_kind rankings from full house
+            power_range = power_range + three_of_kind_rankings
+            power_range = power_range + pair_rankings
             power_range = power_range + HandScorer.high_card_rankings(value_range)
-
         return sorted(power_range)[::-1] 
 
     def compare_power_rankings(first, second):
@@ -225,7 +224,7 @@ class HandScorer:
         power_range = []
 
         for card_num in range(NUM_CARD_VALUES):
-            if (value_range[card_num] == 2):
+            if value_range[card_num] == 2:
                 value_range[card_num] = 0
                 power_range.append((Rankings.PAIR.value, card_num))
 
