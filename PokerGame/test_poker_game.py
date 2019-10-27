@@ -72,16 +72,69 @@ def test_triple_middle_row():
         score, power_range = HandScorer.score_hand(deck, MIDDLE_ROW)
         assert correct_score == score
 
+# TODO Add Ace low
+'''Test all possible straights with random suit values'''
 def test_straight_middle_row():
     correct_score = 4
     all_card_values = list(range(0, NUM_CARD_VALUES - 4))
     for i, bottom_value in enumerate(all_card_values):
         deck = [Card(CLUBS, bottom_value), Card(SPADES, bottom_value+1), Card(HEARTS, bottom_value+2),
-                Card(DIAMONDS, bottom_value+3), Card(HEARTS, bottom_value+4) ]
+                Card(DIAMONDS, bottom_value+3), Card(HEARTS, bottom_value+4)]
         score, power_range = HandScorer.score_hand(deck, MIDDLE_ROW)
 
         assert correct_score == score
 
+'''Test flush with different suits and test cases provided for card values'''
 def test_flush_middle_row():
     correct_score = 8
+    all_suits = [CLUBS, SPADES, HEARTS, DIAMONDS]
+    test_cases = [[0,1,2,3,5], [0, 3, 5, 7, 11], [7,9,10,11,12], [0,1,2,11,12]]
+    for suit in all_suits:
+        for case in test_cases:
+            deck = [Card(suit, case[0]), Card(suit, case[1]), Card(suit, case[2]),
+                Card(suit, case[3]), Card(suit, case[4])]
 
+            score, power_range = HandScorer.score_hand(deck, MIDDLE_ROW)
+            assert correct_score == score
+
+'''Test full house in middle row: Iterate through all possible value for trips and the values for the pair'''
+def test_full_house_middle_row():
+    correct_score = 12
+    all_card_values = list(range(0, NUM_CARD_VALUES))
+    for i, triple_value in enumerate(all_card_values):
+        pair_values = all_card_values.copy()
+        pair_values.remove(triple_value)
+        for pair_value in pair_values:
+            deck = [Card(CLUBS, triple_value), Card(SPADES, pair_value), Card(HEARTS, triple_value),
+                    Card(DIAMONDS, pair_value), Card(HEARTS, triple_value)]
+            score, power_range = HandScorer.score_hand(deck, MIDDLE_ROW)
+            assert correct_score == score
+
+'''Test Quads + extra card in the middle row'''
+def test_quads_middle_row():
+    correct_score = 20
+    all_card_values = list(range(0, NUM_CARD_VALUES))
+    for i, quad_value in enumerate(all_card_values):
+        # extra values = values for the 5th card in the hand of quads
+        extra_values = all_card_values.copy()
+        extra_values.remove(quad_value)
+        for extra_value in extra_values:
+            deck = [Card(CLUBS, quad_value), Card(SPADES, extra_value), Card(HEARTS, quad_value),
+                    Card(DIAMONDS, quad_value), Card(HEARTS, quad_value)]
+            score, power_range = HandScorer.score_hand(deck, MIDDLE_ROW)
+            assert correct_score == score
+
+# TODO Add Ace Low
+def test_straight_flush():
+    correct_score = 15
+    all_card_values = list(range(0, NUM_CARD_VALUES - 5))
+    all_suits = [CLUBS, SPADES, HEARTS, DIAMONDS]
+    for i, bottom_value in enumerate(all_card_values):
+        for suit in all_suits:
+            deck = [Card(suit, bottom_value), Card(suit, bottom_value + 1), Card(suit, bottom_value + 2),
+                    Card(suit, bottom_value + 3), Card(suit, bottom_value + 4)]
+            score, power_range = HandScorer.score_hand(deck, MIDDLE_ROW)
+            print(bottom_value)
+            print(score)
+            print(power_range)
+            assert correct_score == score

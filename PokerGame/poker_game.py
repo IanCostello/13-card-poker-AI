@@ -269,3 +269,4 @@ class HandScorer:
                 return [(Rankings.FOUR_CARD.value, card_num)]
 
         return []
+
