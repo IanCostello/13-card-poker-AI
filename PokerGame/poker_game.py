@@ -117,7 +117,7 @@ class HandScorer:
         Rankings.FOUR_CARD.value: 20,
         Rankings.FULL_HOUSE.value: 12,
         Rankings.FLUSH.value: 8/5,
-        Rankings.STRAIGHT.value: 4/5
+        Rankings.STRAIGHT.value: 4/5,
         Rankings.THREE_CARD.value: 2,
         Rankings.PAIR.value: 0,
         Rankings.HIGH_CARD.value: 0
