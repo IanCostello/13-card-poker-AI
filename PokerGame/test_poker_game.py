@@ -2,6 +2,7 @@ from poker_game import HandScorer, Card, Rankings
 
 CLUBS = 1
 SPADES = 2
+HEARTS = 3
 
 def test_basic():
     assert 1 == 1
@@ -37,5 +38,11 @@ def test_straight_flush():
     ranking = HandScorer.build_power_range(deck)
     assert ranking[0][0] == Rankings.STRAIGHT_FLUSH.value
 
+def test_full_house():
+    deck = [Card(CLUBS, 2), Card(SPADES, 2), Card(HEARTS, 2), Card(CLUBS, 3), Card(HEARTS, 3)]
+    ranking = HandScorer.build_power_range(deck)
+    assert ranking[0][0] == Rankings.FULL_HOUSE.value
+
+test_full_house()
 
 

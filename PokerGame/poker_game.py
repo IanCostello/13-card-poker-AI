@@ -177,6 +177,13 @@ class HandScorer:
         else:
             power_range = power_range + straight_flush_rankings
 
+        # Special case for flush
+        three_of_kind_rankings = HandScorer.three_of_kind_rankings(value_range)
+        pair_rankings = HandScorer.pair_rankings(value_range)
+        if len(three_of_kind_rankings) != 0 and len(pair_rankings) != 0:
+            power_range.append((Rankings.FULL_HOUSE.value, three_of_kind_rankings[0][1]))
+            power_range.append((Rankings.PAIR.value, pair_rankings[0][1]))
+
         if power_range == []:
             power_range = power_range + HandScorer.three_of_kind_rankings(value_range)
             power_range = power_range + HandScorer.pair_rankings(value_range)
