@@ -79,6 +79,9 @@ def test_straight_middle_row():
         deck = [Card(CLUBS, bottom_value), Card(SPADES, bottom_value+1), Card(HEARTS, bottom_value+2),
                 Card(DIAMONDS, bottom_value+3), Card(HEARTS, bottom_value+4) ]
         score, power_range = HandScorer.score_hand(deck, MIDDLE_ROW)
-        print(bottom_value)
+
         assert correct_score == score
+
+def test_flush_middle_row():
+    correct_score = 8
 

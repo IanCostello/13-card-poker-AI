@@ -117,7 +117,7 @@ class HandScorer:
         Rankings.FOUR_CARD.value: 20,
         Rankings.FULL_HOUSE.value: 12,
         Rankings.FLUSH.value: 8/5,
-        Rankings.STRAIGHT.value: 4/5,
+        Rankings.STRAIGHT.value: 4,
         Rankings.THREE_CARD.value: 2,
         Rankings.PAIR.value: 0,
         Rankings.HIGH_CARD.value: 0
@@ -172,6 +172,7 @@ class HandScorer:
         straight_flush_rankings = []
         straight_flush_rankings = straight_flush_rankings + HandScorer.straight_rankings(value_range)
         straight_flush_rankings = straight_flush_rankings + HandScorer.flush_rankings(hand)
+
 
         # Special case if straight flush
         if len(straight_flush_rankings) > 5:
@@ -239,7 +240,7 @@ class HandScorer:
         return []
 
     def straight_rankings(value_range):
-        for card_num in range(NUM_CARD_VALUES-5):
+        for card_num in range(NUM_CARD_VALUES-4):
             for j in range(5):
                 if (value_range[card_num+j] != 1):
                     break
