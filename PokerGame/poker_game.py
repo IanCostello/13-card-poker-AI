@@ -31,7 +31,7 @@ class PokerGame:
         self.deck = []
         for i in range(52):
             self.deck.append(Card(i))
-        random.shuffle(self.deck)
+        # random.shuffle(self.deck)
 
     # hand num corresponds to bottom, mid, or top
     def playIntoHand(self, first_card, first_hand_num, second_card, second_hand_num):
@@ -58,12 +58,16 @@ class PokerGame:
         print(f"MIDDLE ROW {self.player_board[MIDDLE_ROW]}  Hand Score {HandScorer.score_hand(self.player_board[MIDDLE_ROW], 1)[0]}")
         print(f"BOTTOM ROW {self.player_board[BOTTOM_ROW]}   Hand Score {HandScorer.score_hand(self.player_board[BOTTOM_ROW], 0)[0]}")
 
-    def eval_board(self):
-        bottom_hand, bottom_score = HandScorer.score_hand(self.player_board[BOTTOM_ROW], BOTTOM_ROW)
-        middle_hand, middle_score = HandScorer.score_hand(self.player_board[BOTTOM_ROW], BOTTOM_ROW)
-        top_hand, top_score = HandScorer.score_hand(self.player_board[BOTTOM_ROW], BOTTOM_ROW)
+    def score_board(self):
+        bottom_score, bottom_hand = HandScorer.score_hand(self.player_board[BOTTOM_ROW], BOTTOM_ROW)
+        middle_score, middle_hand = HandScorer.score_hand(self.player_board[MIDDLE_ROW], MIDDLE_ROW)
+        top_score, top_hand = HandScorer.score_hand(self.player_board[TOP_ROW], TOP_ROW)
 
-
+        if (HandScorer.compare_power_rankings(bottom_hand, middle_hand) < 0 or
+           HandScorer.compare_power_rankings(middle_hand, top_hand) < 0):
+            return -3
+        else:
+            return bottom_score + middle_score + top_score
 
 class Card:
     suit_names = ["Clubs", "Spades", "Hearts", "Diamonds"]
@@ -101,8 +105,8 @@ class HandScorer:
         Rankings.STRAIGHT_FLUSH.value: 15,
         Rankings.FOUR_CARD.value: 10,
         Rankings.FULL_HOUSE.value: 6,
-        Rankings.FLUSH.value: 4,
-        Rankings.STRAIGHT.value: 2,
+        Rankings.FLUSH.value: 4/5,
+        Rankings.STRAIGHT.value: 2/5,
         Rankings.THREE_CARD.value: 0,
         Rankings.PAIR.value: 0,
         Rankings.HIGH_CARD.value: 0
@@ -112,8 +116,8 @@ class HandScorer:
         Rankings.STRAIGHT_FLUSH.value: 30,
         Rankings.FOUR_CARD.value: 20,
         Rankings.FULL_HOUSE.value: 12,
-        Rankings.FLUSH.value: 8,
-        Rankings.STRAIGHT.value: 4,
+        Rankings.FLUSH.value: 8/5,
+        Rankings.STRAIGHT.value: 4/5
         Rankings.THREE_CARD.value: 2,
         Rankings.PAIR.value: 0,
         Rankings.HIGH_CARD.value: 0
@@ -190,6 +194,22 @@ class HandScorer:
             power_range = power_range + HandScorer.high_card_rankings(value_range)
 
         return sorted(power_range)[::-1] 
+
+    def compare_power_rankings(first, second):
+        ''' Returns 1 if the first ranking is bigger than the second, 0 if equal, -1 if second > first'''
+        for i in range(min(len(first), len(second))):
+            # Compare power rankings
+            if first[i][0] > second[i][0]:
+                return 1
+            elif first[i][0] < first[i][0]:
+                return -1
+            else:
+                # If equal power rankings, compare card values
+                if first[i][1] > second[i][1]:
+                    return 1
+                elif first[i][1] < first[i][1]:
+                    return -1 
+        return 0
 
     def high_card_rankings(value_range):
         power_range = []
