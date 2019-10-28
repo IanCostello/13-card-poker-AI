@@ -72,7 +72,6 @@ def test_triple_middle_row():
         score, power_range = HandScorer.score_hand(deck, MIDDLE_ROW)
         assert correct_score == score
 
-# TODO Add Ace low
 '''Test all possible straights with random suit values'''
 def test_straight_middle_row():
     correct_score = 4
@@ -81,8 +80,12 @@ def test_straight_middle_row():
         deck = [Card(CLUBS, bottom_value), Card(SPADES, bottom_value+1), Card(HEARTS, bottom_value+2),
                 Card(DIAMONDS, bottom_value+3), Card(HEARTS, bottom_value+4)]
         score, power_range = HandScorer.score_hand(deck, MIDDLE_ROW)
-
         assert correct_score == score
+    # Special Case, Ace Low Straight
+    deck = [Card(CLUBS, 12), Card(SPADES, 0), Card(HEARTS, 1),
+            Card(DIAMONDS, 2), Card(HEARTS, 3)]
+    score, power_range = HandScorer.score_hand(deck, MIDDLE_ROW)
+    assert correct_score == score
 
 '''Test flush with different suits and test cases provided for card values'''
 def test_flush_middle_row():
@@ -138,3 +141,5 @@ def test_straight_flush():
             print(score)
             print(power_range)
             assert correct_score == score
+
+test_straight_middle_row()

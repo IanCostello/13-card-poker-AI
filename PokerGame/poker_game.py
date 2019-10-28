@@ -247,6 +247,15 @@ class HandScorer:
                 elif j == 4:
                     return [(Rankings.STRAIGHT.value, card_num + 4)]
 
+        # Ace low special case:
+        ace_index = 12
+        if value_range[ace_index] == 1:
+            for j in range(4):
+                if value_range[j] != 1:
+                    break
+                elif j == 3:
+                    return [(Rankings.STRAIGHT.value, 3)]
+
         return []
 
     def flush_rankings(hand):
