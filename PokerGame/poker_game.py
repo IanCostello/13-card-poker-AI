@@ -99,21 +99,24 @@ class Rankings(Enum):
         FULL_HOUSE = 5
         FOUR_CARD = 6
         STRAIGHT_FLUSH = 7
+        ROYAL_FLUSH = 8
 
 class HandScorer: 
     BOTTOM_ROW_SCORING = {
-        Rankings.STRAIGHT_FLUSH.value: 15,
+        Rankings.ROYAL_FLUSH.value: 25,
+        Rankings.STRAIGHT_FLUSH.value: 15/5,
         Rankings.FOUR_CARD.value: 10,
         Rankings.FULL_HOUSE.value: 6,
         Rankings.FLUSH.value: 4/5,
-        Rankings.STRAIGHT.value: 2/5,
+        Rankings.STRAIGHT.value: 2,
         Rankings.THREE_CARD.value: 0,
         Rankings.PAIR.value: 0,
         Rankings.HIGH_CARD.value: 0
     }
 
     MIDDLE_ROW_SCORING = {
-        Rankings.STRAIGHT_FLUSH.value: 30,
+        Rankings.ROYAL_FLUSH.value: 50,
+        Rankings.STRAIGHT_FLUSH.value: 30/5,
         Rankings.FOUR_CARD.value: 20,
         Rankings.FULL_HOUSE.value: 12,
         Rankings.FLUSH.value: 8/5,
@@ -173,11 +176,14 @@ class HandScorer:
         straight_flush_rankings = straight_flush_rankings + HandScorer.straight_rankings(value_range)
         straight_flush_rankings = straight_flush_rankings + HandScorer.flush_rankings(hand)
 
-
         # Special case if straight flush
         if len(straight_flush_rankings) > 5:
-            for i in range(5):
-                power_range.append((Rankings.STRAIGHT_FLUSH.value, straight_flush_rankings[i][1]))
+            # if the straight is ace high --> royal flush
+            if straight_flush_rankings[0][1] == 12:
+                power_range.append((Rankings.ROYAL_FLUSH.value, straight_flush_rankings[0][1]))
+            else:
+                for i in range(5):
+                    power_range.append((Rankings.STRAIGHT_FLUSH.value, straight_flush_rankings[i][1]))
         else:
             power_range = power_range + straight_flush_rankings
 
@@ -242,7 +248,7 @@ class HandScorer:
     def straight_rankings(value_range):
         for card_num in range(NUM_CARD_VALUES-4):
             for j in range(5):
-                if (value_range[card_num+j] != 1):
+                if value_range[card_num+j] != 1:
                     break
                 elif j == 4:
                     return [(Rankings.STRAIGHT.value, card_num + 4)]
