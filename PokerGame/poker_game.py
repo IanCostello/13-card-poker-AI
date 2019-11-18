@@ -202,18 +202,18 @@ class HandScorer:
         return sorted(power_range)[::-1] 
 
     def compare_power_rankings(first, second):
-        ''' Returns 1 if the first ranking is bigger than the second, 0 if equal, -1 if second > first'''
+        ''' Returns 1 if the first rankings is bigger than the second, 0 if equal, -1 if second > first'''
         for i in range(min(len(first), len(second))):
             # Compare power rankings
             if first[i][0] > second[i][0]:
                 return 1
-            elif first[i][0] < first[i][0]:
+            elif first[i][0] < second[i][0]:
                 return -1
             else:
                 # If equal power rankings, compare card values
                 if first[i][1] > second[i][1]:
                     return 1
-                elif first[i][1] < first[i][1]:
+                elif first[i][1] < second[i][1]:
                     return -1 
         return 0
 

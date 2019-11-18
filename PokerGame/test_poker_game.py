@@ -1,9 +1,9 @@
 from poker_game import HandScorer, Card, Rankings
 from poker_game import BOTTOM_ROW, MIDDLE_ROW, TOP_ROW, NUM_CARD_VALUES
-CLUBS = 1
-SPADES = 2
-HEARTS = 3
-DIAMONDS = 4
+CLUBS = 0
+SPADES = 1
+HEARTS = 2
+DIAMONDS = 3
 
 def test_basic():
     assert 1 == 1
@@ -258,3 +258,84 @@ def test_royal_flush_bottom_row():
 
         assert score == correct_score
 
+'''Test compare power rankings function'''
+
+'''Compare decks of different hands (pair vs. straight)'''
+def test_compare_power_rankings_general():
+    '''High Card, Pair, Trips'''
+    deck_high_card = [Card(HEARTS, 0), Card(SPADES, 1), Card(CLUBS, 3),
+                Card(SPADES, 5), Card(HEARTS, 9)]
+    deck_pair = [Card(HEARTS, 0), Card(SPADES, 0), Card(CLUBS, 3),
+                Card(SPADES, 5), Card(HEARTS, 9)]
+    deck_trips = [Card(HEARTS, 0), Card(SPADES, 0), Card(CLUBS, 0),
+                Card(SPADES, 5), Card(HEARTS, 9)]
+    deck_straight = [Card(HEARTS, 0), Card(SPADES, 1), Card(CLUBS, 2),
+                Card(SPADES, 3), Card(HEARTS, 4)]
+    deck_flush = [Card(HEARTS, 0), Card(HEARTS, 3), Card(HEARTS, 5),
+                     Card(HEARTS, 7), Card(HEARTS, 10)]
+    deck_full_house = [Card(HEARTS, 0), Card(SPADES, 0), Card(CLUBS, 0),
+                Card(SPADES, 1), Card(HEARTS, 1)]
+    deck_quads = [Card(HEARTS, 0), Card(SPADES, 0), Card(CLUBS, 0),
+                Card(SPADES, 0), Card(HEARTS, 1)]
+    deck_straight_flush = [Card(HEARTS, 0), Card(HEARTS, 1), Card(HEARTS, 2),
+                Card(HEARTS, 3), Card(HEARTS, 4)]
+    deck_royal_flush = [Card(HEARTS, 8), Card(HEARTS, 9), Card(HEARTS, 10),
+                Card(HEARTS, 11), Card(HEARTS, 12)]
+    ordered_deck_by_rank = [deck_high_card, deck_pair, deck_trips, deck_straight, deck_flush, deck_full_house,
+                            deck_quads, deck_straight_flush, deck_royal_flush]
+
+    for i, deck in enumerate(ordered_deck_by_rank[1:]):
+        deck_A = deck
+        score_A, power_range_A = HandScorer.score_hand(deck_A, BOTTOM_ROW)
+
+        deck_B = ordered_deck_by_rank[i]
+        score_B, power_range_B = HandScorer.score_hand(deck_B, BOTTOM_ROW)
+
+        assert HandScorer.compare_power_rankings(power_range_A, power_range_B) == 1
+        assert HandScorer.compare_power_rankings(power_range_B, power_range_A) == -1
+        assert HandScorer.compare_power_rankings(power_range_A, power_range_A) == 0
+        assert HandScorer.compare_power_rankings(power_range_B, power_range_B) == 0
+
+def test_compare_power_rankings_pair():
+    # higher pair comparison
+    all_card_values = list(range(1, NUM_CARD_VALUES))
+    for i, value in enumerate(all_card_values):
+        deck_A = [Card(CLUBS, value), Card(SPADES, value)]
+        score_A, power_range_A = HandScorer.score_hand(deck_A, TOP_ROW)
+
+        deck_B = [Card(CLUBS, value-1), Card(SPADES, value-1)]
+        score_B, power_range_B = HandScorer.score_hand(deck_B, TOP_ROW)
+        assert HandScorer.compare_power_rankings(power_range_A, power_range_B) == 1
+        assert HandScorer.compare_power_rankings(power_range_B, power_range_A) == -1
+        assert HandScorer.compare_power_rankings(power_range_A, power_range_A) == 0
+        assert HandScorer.compare_power_rankings(power_range_B, power_range_B) == 0
+
+def test_compare_power_rankings_high_card():
+    all_card_values = list(range(2, NUM_CARD_VALUES))
+    for i, value in enumerate(all_card_values):
+        deck_A = [Card(CLUBS, value), Card(SPADES, value-1)]
+        score_A, power_range_A = HandScorer.score_hand(deck_A, TOP_ROW)
+
+        deck_B = [Card(CLUBS, value-1), Card(SPADES, value-2)]
+        score_B, power_range_B = HandScorer.score_hand(deck_B, TOP_ROW)
+        assert HandScorer.compare_power_rankings(power_range_A, power_range_B) == 1
+        assert HandScorer.compare_power_rankings(power_range_B, power_range_A) == -1
+        assert HandScorer.compare_power_rankings(power_range_A, power_range_A) == 0
+        assert HandScorer.compare_power_rankings(power_range_B, power_range_B) == 0
+
+
+def test_compare_power_rankings_trips():
+    all_card_values = list(range(1, NUM_CARD_VALUES))
+    for i, value in enumerate(all_card_values):
+        deck_A = [Card(CLUBS, value), Card(SPADES, value), Card(HEARTS, value)]
+        score_A, power_range_A = HandScorer.score_hand(deck_A, TOP_ROW)
+
+        deck_B = [Card(CLUBS, value - 1), Card(SPADES, value - 1), Card(HEARTS, value-1)]
+        score_B, power_range_B = HandScorer.score_hand(deck_B, TOP_ROW)
+        assert HandScorer.compare_power_rankings(power_range_A, power_range_B) == 1
+        assert HandScorer.compare_power_rankings(power_range_B, power_range_A) == -1
+        assert HandScorer.compare_power_rankings(power_range_A, power_range_A) == 0
+        assert HandScorer.compare_power_rankings(power_range_B, power_range_B) == 0
+
+
+# TODO Finish test_compare_power_rankings
