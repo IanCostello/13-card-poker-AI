@@ -338,4 +338,142 @@ def test_compare_power_rankings_trips():
         assert HandScorer.compare_power_rankings(power_range_B, power_range_B) == 0
 
 
-# TODO Finish test_compare_power_rankings
+
+def test_compare_power_rankings_straight():
+    all_card_values = list(range(1, NUM_CARD_VALUES - 4))
+    for i, bottom_value in enumerate(all_card_values):
+        deck_A = [Card(CLUBS, bottom_value), Card(SPADES, bottom_value + 1), Card(HEARTS, bottom_value + 2),
+                Card(DIAMONDS, bottom_value + 3), Card(HEARTS, bottom_value + 4)]
+        score_A, power_range_A = HandScorer.score_hand(deck_A, BOTTOM_ROW)
+        deck_B = [Card(CLUBS, bottom_value-1), Card(SPADES, bottom_value), Card(HEARTS, bottom_value + 1),
+                 Card(DIAMONDS, bottom_value + 2), Card(HEARTS, bottom_value + 3)]
+        score_B, power_range_B = HandScorer.score_hand(deck_B, BOTTOM_ROW)
+
+        assert HandScorer.compare_power_rankings(power_range_A, power_range_B) == 1
+        assert HandScorer.compare_power_rankings(power_range_B, power_range_A) == -1
+        assert HandScorer.compare_power_rankings(power_range_A, power_range_A) == 0
+        assert HandScorer.compare_power_rankings(power_range_B, power_range_B) == 0
+
+
+def test_compare_power_rankings_flush():
+    all_suits = [CLUBS, SPADES, HEARTS, DIAMONDS]
+    test_cases = [[0, 1, 2, 3, 5], [0, 3, 5, 7, 11], [7, 9, 2, 11, 12], [0, 1, 10, 11, 12]]
+    for suit in all_suits:
+        for i in range(1,len(test_cases)):
+            deck_A = [Card(suit, test_cases[i][0]), Card(suit, test_cases[i][1]), Card(suit, test_cases[i][2]),
+                    Card(suit, test_cases[i][3]), Card(suit, test_cases[i][4])]
+            score_A, power_range_A = HandScorer.score_hand(deck_A, BOTTOM_ROW)
+
+            deck_B = [Card(suit, test_cases[i-1][0]), Card(suit, test_cases[i-1][1]), Card(suit, test_cases[i-1][2]),
+                      Card(suit, test_cases[i-1][3]), Card(suit, test_cases[i-1][4])]
+            score_B, power_range_B = HandScorer.score_hand(deck_B, BOTTOM_ROW)
+
+            assert HandScorer.compare_power_rankings(power_range_A, power_range_B) == 1
+            assert HandScorer.compare_power_rankings(power_range_B, power_range_A) == -1
+            assert HandScorer.compare_power_rankings(power_range_A, power_range_A) == 0
+            assert HandScorer.compare_power_rankings(power_range_B, power_range_B) == 0
+
+
+def test_compare_power_rankings_full_house():
+    '''Same pair value, different triple value'''
+    all_card_values = list(range(1, NUM_CARD_VALUES))
+    for i, triple_value_A in enumerate(all_card_values):
+        for j in range(0, i):
+            triple_value_B = all_card_values[j]
+            pair_values = all_card_values.copy()
+            pair_values.remove(triple_value_A)
+            pair_values.remove(triple_value_B)
+            for pair_value in pair_values:
+                deck_A = [Card(CLUBS, triple_value_A), Card(SPADES, pair_value), Card(HEARTS, triple_value_A),
+                        Card(DIAMONDS, pair_value), Card(HEARTS, triple_value_A)]
+                score_A, power_range_A = HandScorer.score_hand(deck_A, BOTTOM_ROW)
+
+                deck_B = [Card(CLUBS, triple_value_B), Card(SPADES, pair_value), Card(HEARTS, triple_value_B),
+                          Card(DIAMONDS, pair_value), Card(HEARTS, triple_value_B)]
+                score_B, power_range_B = HandScorer.score_hand(deck_B, BOTTOM_ROW)
+                assert HandScorer.compare_power_rankings(power_range_A, power_range_B) == 1
+                assert HandScorer.compare_power_rankings(power_range_B, power_range_A) == -1
+                assert HandScorer.compare_power_rankings(power_range_A, power_range_A) == 0
+                assert HandScorer.compare_power_rankings(power_range_B, power_range_B) == 0
+    '''Same triple value, different pair value'''
+    all_card_values = list(range(1, NUM_CARD_VALUES))
+    for i, pair_value_A in enumerate(all_card_values):
+        for j in range(0, i):
+            pair_value_B = all_card_values[j]
+            triple_values = all_card_values.copy()
+            triple_values.remove(pair_value_A)
+            triple_values.remove(pair_value_B)
+            for triple_value in triple_values:
+                deck_A = [Card(CLUBS, triple_value), Card(SPADES, pair_value_A), Card(HEARTS, triple_value),
+                          Card(DIAMONDS, pair_value_A), Card(HEARTS, triple_value)]
+                score_A, power_range_A = HandScorer.score_hand(deck_A, BOTTOM_ROW)
+
+                deck_B = [Card(CLUBS, triple_value), Card(SPADES, pair_value_B), Card(HEARTS, triple_value),
+                          Card(DIAMONDS, pair_value_B), Card(HEARTS, triple_value)]
+                score_B, power_range_B = HandScorer.score_hand(deck_B, BOTTOM_ROW)
+                assert HandScorer.compare_power_rankings(power_range_A, power_range_B) == 1
+                assert HandScorer.compare_power_rankings(power_range_B, power_range_A) == -1
+                assert HandScorer.compare_power_rankings(power_range_A, power_range_A) == 0
+                assert HandScorer.compare_power_rankings(power_range_B, power_range_B) == 0
+
+
+def test_compare_power_rankings_quads():
+    all_card_values = list(range(1, NUM_CARD_VALUES))
+    for i, quad_value in enumerate(all_card_values):
+        # extra values = values for the 5th card in the hand of quads
+        extra_values = all_card_values.copy()
+        extra_values.remove(quad_value)
+        extra_values.remove(all_card_values[i-1])
+        for extra_value in extra_values:
+            deck_A = [Card(CLUBS, quad_value), Card(SPADES, extra_value), Card(HEARTS, quad_value),
+                    Card(DIAMONDS, quad_value), Card(HEARTS, quad_value)]
+            score_A, power_range_A = HandScorer.score_hand(deck_A, BOTTOM_ROW)
+
+            deck_B = [Card(CLUBS, quad_value-1), Card(SPADES, extra_value), Card(HEARTS, quad_value-1),
+                    Card(DIAMONDS, quad_value-1), Card(HEARTS, quad_value-1)]
+
+            score_B, power_range_B = HandScorer.score_hand(deck_B, BOTTOM_ROW)
+            assert HandScorer.compare_power_rankings(power_range_A, power_range_B) == 1
+            assert HandScorer.compare_power_rankings(power_range_B, power_range_A) == -1
+            assert HandScorer.compare_power_rankings(power_range_A, power_range_A) == 0
+            assert HandScorer.compare_power_rankings(power_range_B, power_range_B) == 0
+
+
+def test_compare_power_rankings_straight_flush():
+    all_card_values = list(range(1, NUM_CARD_VALUES - 5))
+    all_suits = [CLUBS, SPADES, HEARTS, DIAMONDS]
+    for i, bottom_value in enumerate(all_card_values):
+        for suit in all_suits:
+            deck_A = [Card(suit, bottom_value), Card(suit, bottom_value + 1), Card(suit, bottom_value + 2),
+                    Card(suit, bottom_value + 3), Card(suit, bottom_value + 4)]
+            score_A, power_range_A = HandScorer.score_hand(deck_A, BOTTOM_ROW)
+
+            deck_B = [Card(suit, bottom_value-1), Card(suit, bottom_value), Card(suit, bottom_value + 1),
+                      Card(suit, bottom_value + 2), Card(suit, bottom_value + 3)]
+            score_B, power_range_B = HandScorer.score_hand(deck_B, BOTTOM_ROW)
+
+            assert HandScorer.compare_power_rankings(power_range_A, power_range_B) == 1
+            assert HandScorer.compare_power_rankings(power_range_B, power_range_A) == -1
+            assert HandScorer.compare_power_rankings(power_range_A, power_range_A) == 0
+            assert HandScorer.compare_power_rankings(power_range_B, power_range_B) == 0
+
+    # Special Case, Ace Low Straight
+    for suit in all_suits:
+        deck_A = [Card(suit, 11), Card(suit, 10), Card(suit, 9),
+                Card(suit, 8), Card(suit, 7)]
+        score_A, power_range_A = HandScorer.score_hand(deck_A, BOTTOM_ROW)
+
+        deck_B = [Card(suit, 12), Card(suit, 0), Card(suit, 1),
+                Card(suit, 2), Card(suit, 3)]
+        score_B, power_range_B = HandScorer.score_hand(deck_B, BOTTOM_ROW)
+
+        print(power_range_A)
+        print(power_range_B)
+        assert HandScorer.compare_power_rankings(power_range_A, power_range_B) == 1
+        assert HandScorer.compare_power_rankings(power_range_B, power_range_A) == -1
+        assert HandScorer.compare_power_rankings(power_range_A, power_range_A) == 0
+        assert HandScorer.compare_power_rankings(power_range_B, power_range_B) == 0
+
+
+test_compare_power_rankings_straight_flush()
+# TODO Fix ace low compare power ranking. Also, [(7, 11), (7, 11), (7, 10), (7, 9), (7, 8)] error.
