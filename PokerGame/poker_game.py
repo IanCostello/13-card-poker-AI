@@ -175,14 +175,14 @@ class HandScorer:
         straight_flush_rankings = []
         straight_flush_rankings = straight_flush_rankings + HandScorer.straight_rankings(value_range)
         straight_flush_rankings = straight_flush_rankings + HandScorer.flush_rankings(hand)
-
         # Special case if straight flush
         if len(straight_flush_rankings) > 5:
             # if the straight is ace high --> royal flush
             if straight_flush_rankings[0][1] == 12:
                 power_range.append((Rankings.ROYAL_FLUSH.value, straight_flush_rankings[0][1]))
             else:
-                for i in range(5):
+                # changed range b/c range(5) --> duplicate straight flush values for high card
+                for i in range(1,6):
                     power_range.append((Rankings.STRAIGHT_FLUSH.value, straight_flush_rankings[i][1]))
         else:
             power_range = power_range + straight_flush_rankings
@@ -199,10 +199,17 @@ class HandScorer:
             power_range = power_range + three_of_kind_rankings
             power_range = power_range + pair_rankings
             power_range = power_range + HandScorer.high_card_rankings(value_range)
+
         return sorted(power_range)[::-1] 
 
     def compare_power_rankings(first, second):
         ''' Returns 1 if the first rankings is bigger than the second, 0 if equal, -1 if second > first'''
+        # Special case: Compare two straight flushes, one ace low
+        if first[0][0] == 7 and second[0][0] == 7:
+            # if one has a ace in as the highest card, only compare cards after the first card
+            if first[0][1] == 12 or second[0][1] == 12:
+                first = first[1:]
+                second = second[1:]
         for i in range(min(len(first), len(second))):
             # Compare power rankings
             if first[i][0] > second[i][0]:
